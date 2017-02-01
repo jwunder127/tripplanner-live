@@ -4,18 +4,31 @@ const itineraryPrefix = '<div class="itinerary-item"><span class="title">';
 
 const removeButton = '<button id="remove-hotel" class="btn btn-xs btn-danger remove remove-task btn-circle">x</button>';
 
-const dayButton = '<button class="btn btn-circle day-btn">';
+const dayButton = '<button class="btn btn-circle day-btn not-add-btn">';
 
 const dayTitlePrefix = '<span id="day-title"><span>Day ';
 const dayTitleSuffix = '</span><button id="remove-day" class="btn btn-xs btn-danger remove btn-circle">x</button></span>';
 
+//numDays and tripPlan reflect 3 days by default
 let numDays = 3;
-let tripPlan = [];
+let tripPlan = [{
+      hotel: [],
+      activity: [],
+      restaurant: []
+    }, {
+      hotel: [],
+      activity: [],
+      restaurant: []
+    }, {
+      hotel: [],
+      activity: [],
+      restaurant: []
+    }];
 
 
 $(document).ready(function() {
 
-  //select option menu
+//select option menu
   $(hotels).each(function(idx, hotel){
     $('#hotel-choices').append('<option>' + hotel.name + '</option>');
     });
@@ -34,12 +47,24 @@ $(document).ready(function() {
 
     $('#hotel-itinerary').append(itineraryPrefix + $selectedHotel + '</span> '
       + removeButton + '</div>');
+    //we want to add the hotel to the tripPlan as well.
+    const $selectedDay = $('.current-day').html();
+    tripPlan[$selectedDay - 1].hotel.push($selectedHotel);
 
+  });
+  //event delegation
+  $('#hotel-itinerary').on('click', '.remove-task', function(){
+    //update selectedHotel to be the one associated with the clicked button
+     const $selectedHotel = $(this).prev().html();
+     const $selectedDay = $('.current-day').html();
+    $(this).closest('div').remove();
 
-    $('.remove-task').click(function(){
-      $(this).closest('div').remove();
-      console.log(this);
-    });
+    //when we remove the div we also want to remove that
+    //hotel from the array.
+    let hotelIndex = tripPlan[$selectedDay - 1].hotel.indexOf($selectedHotel);
+
+    //remove hotel from array
+    tripPlan[$selectedDay - 1].hotel.splice(hotelIndex, 1);
   });
 
   $('#add-restaurant').click(function() {
@@ -50,7 +75,7 @@ $(document).ready(function() {
 
     $('.remove-task').click(function(){
       $(this).closest('div').remove();
-      console.log(this);
+
     });
   });
 
@@ -61,9 +86,10 @@ $(document).ready(function() {
       itineraryPrefix + $selectedActivity + '</span> '
       + removeButton + '</div>');
 
+
     $('.remove-task').click(function(){
       $(this).closest('div').remove();
-      console.log(this);
+
     });
   });
 
@@ -76,19 +102,19 @@ $(document).ready(function() {
       restaurant: []
     });
     numDays++;
-    // select current day
-    //TODO make this work for days 2 and 3 (before adding days)
-    $('.day-btn').not($('#add-btn')).click(function() {
+  });
 
-      $('.day-btn').removeClass('current-day');
-      $(this).addClass('current-day');
-      //select id day title, remove children, add new children with current day info
-      $('#day-title').remove();
-      $('#day-title-container').append(dayTitlePrefix + $(this).html() + dayTitleSuffix);
-      console.log(this);
+// select current day
+  $('.day-buttons').on('click', '.not-add-btn', function() {
+
+    $('.day-btn').removeClass('current-day');
+    $(this).addClass('current-day');
+    //select id day title, remove children, add new children with current day info
+    $('#day-title').remove();
+    $('#day-title-container').append(dayTitlePrefix + $(this).html() + dayTitleSuffix);
+    console.log(this);
 
 
-    });
   });
 
 
